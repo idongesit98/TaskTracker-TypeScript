@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-const taskFilePath = path.join(__dirname, "tasks.json")
+const taskFilePath = path.resolve(__dirname, "tasks.json")
 
 export interface Task{
     id:number;

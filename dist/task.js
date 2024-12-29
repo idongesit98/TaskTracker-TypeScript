@@ -1,30 +1,32 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ensureFileExists = ensureFileExists;
-exports.readTasks = readTasks;
-exports.writeTasks = writeTasks;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
-const taskFilePath = path_1.default.join(__dirname, "tasks.json");
-function ensureFileExists() {
-    if (!fs_1.default.existsSync(taskFilePath)) {
-        fs_1.default.writeFileSync(taskFilePath, JSON.stringify([]));
-    }
-}
-function readTasks() {
-    ensureFileExists();
-    const data = fs_1.default.readFileSync(taskFilePath, "utf-8");
-    return JSON.parse(data);
-}
-function writeTasks(tasks) {
-    try {
-        fs_1.default.writeFileSync(taskFilePath, JSON.stringify(tasks, null, 2), 'utf-8');
-    }
-    catch (error) {
-        console.log("Error occured while writing task data file");
-        process.exit(1);
-    }
+const task_manager_1 = require("./task_manager");
+const command = process.argv[3];
+const args = process.argv.slice(4);
+switch (command) {
+    case 'add':
+        (0, task_manager_1.addTask)(args[0]);
+        break;
+    case 'update':
+        const id = args[0];
+        const description = args[1];
+        const status = args[2];
+        if (!id) {
+            console.error("Please provide the task ID.");
+            break;
+        }
+        (0, task_manager_1.updateTask)(id, description, status);
+        console.log(id, description, status);
+        break;
+    case 'delete':
+        (0, task_manager_1.deleteTask)(args[0]);
+        break;
+    case 'mark':
+        (0, task_manager_1.changeTaskStatus)(args[0], args[1]);
+        break;
+    case 'list':
+        (0, task_manager_1.listTasks)(args[0]);
+        break;
+    default:
+        console.log('Unknown command. Use "add", "update", "delete", "mark", "list"');
 }

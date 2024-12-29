@@ -1,4 +1,3 @@
-import { connect } from "http2";
 import { readTasks, Task, writeTasks } from "./utils/fileUtils"
 
 function getId(tasks: Task[]){
@@ -6,7 +5,7 @@ function getId(tasks: Task[]){
     return ids.length > 0 ? Math.max(...ids) + 1 : 1
 }
 
-function addTask(description:string):void {
+ export function addTask(description:string):void {
     const task = readTasks()
     const newTask:Task = {
         id:getId(task),
@@ -18,26 +17,30 @@ function addTask(description:string):void {
     console.log(`Task added successfully: ${newTask.id}`) 
 }
 
-function updateTask(id:number,newDescription?:string, newStatus?: "pending" | "in-progress" | "done"):void {
+export function updateTask(id:string, newDescription?:string, newStatus?: "pending" | "in-progress" | "done"):void {
     const tasks = readTasks()
-    const task = tasks.find(task => task.id === id)
+    const taskId = parseInt(id,10);
+
+    const task = tasks.find(task => task.id === taskId)
 
     if (task) {
-        if (newDescription != undefined) {
+        if (newDescription !== undefined) {
             task.description = newDescription
         }
-        if (newStatus != undefined) {
+        if (newStatus !== undefined) {
             task.status = newStatus
-        }     
+        }  
+        writeTasks(tasks) 
+        console.log(`Task with id ${id} updated successfully`)  
     }else{
         console.log(`Task with id ${id} not found`)
     }
 }
 
-function deleteTask(id:number) {
+export function deleteTask(id:string) {
     let tasks = readTasks()
     const initialLength = tasks.length;
-    tasks = tasks.filter(task => task.id != id)
+    tasks = tasks.filter(task => task.id != parseInt(id))
     writeTasks(tasks)
     if (tasks.length < initialLength) {
         console.log(`Deleted task with id: ${id}`);
@@ -46,9 +49,9 @@ function deleteTask(id:number) {
     }
 }
 
-function changeTaskStatus(id:number, status:"pending" | "in-progress" | "done") {
+export function changeTaskStatus(id:string, status:"pending" | "in-progress" | "done") {
     const tasks = readTasks()
-    const task = tasks.find(task => task.id === id)
+    const task = tasks.find((task) => task.id === parseInt(id,10))
     if (task) {
         task.status = status
         writeTasks(tasks)
@@ -58,7 +61,7 @@ function changeTaskStatus(id:number, status:"pending" | "in-progress" | "done") 
     }
 }
 
-function listTasks(status:"pending" | "in-progress" | "done") {
+export function listTasks(status:"pending" | "in-progress" | "done") {
     const tasks = readTasks()
 
     if(status){
@@ -72,6 +75,3 @@ function listTasks(status:"pending" | "in-progress" | "done") {
     }
 }
 
-module.exports = {
-    addTask, updateTask, deleteTask, changeTaskStatus, listTasks
-}

@@ -1,41 +1,49 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const task_1 = require("./task");
+exports.addTask = addTask;
+exports.updateTask = updateTask;
+exports.deleteTask = deleteTask;
+exports.changeTaskStatus = changeTaskStatus;
+exports.listTasks = listTasks;
+const fileUtils_1 = require("./utils/fileUtils");
 function getId(tasks) {
     const ids = tasks.map((tasks) => tasks.id);
     return ids.length > 0 ? Math.max(...ids) + 1 : 1;
 }
 function addTask(description) {
-    const task = (0, task_1.readTasks)();
+    const task = (0, fileUtils_1.readTasks)();
     const newTask = {
         id: getId(task),
         description,
         status: "pending"
     };
     task.push(newTask);
-    (0, task_1.writeTasks)(task);
+    (0, fileUtils_1.writeTasks)(task);
     console.log(`Task added successfully: ${newTask.id}`);
 }
 function updateTask(id, newDescription, newStatus) {
-    const tasks = (0, task_1.readTasks)();
-    const task = tasks.find(task => task.id === id);
+    const tasks = (0, fileUtils_1.readTasks)();
+    const taskId = parseInt(id, 10);
+    const task = tasks.find(task => task.id === taskId);
     if (task) {
-        if (newDescription != undefined) {
+        if (newDescription !== undefined) {
             task.description = newDescription;
         }
-        if (newStatus != undefined) {
+        if (newStatus !== undefined) {
             task.status = newStatus;
         }
+        (0, fileUtils_1.writeTasks)(tasks);
+        console.log(`Task with id ${id} updated successfully`);
     }
     else {
         console.log(`Task with id ${id} not found`);
     }
 }
 function deleteTask(id) {
-    let tasks = (0, task_1.readTasks)();
+    let tasks = (0, fileUtils_1.readTasks)();
     const initialLength = tasks.length;
-    tasks = tasks.filter(task => task.id != id);
-    (0, task_1.writeTasks)(tasks);
+    tasks = tasks.filter(task => task.id != parseInt(id));
+    (0, fileUtils_1.writeTasks)(tasks);
     if (tasks.length < initialLength) {
         console.log(`Deleted task with id: ${id}`);
     }
@@ -44,11 +52,11 @@ function deleteTask(id) {
     }
 }
 function changeTaskStatus(id, status) {
-    const tasks = (0, task_1.readTasks)();
-    const task = tasks.find(task => task.id === id);
+    const tasks = (0, fileUtils_1.readTasks)();
+    const task = tasks.find((task) => task.id === parseInt(id, 10));
     if (task) {
         task.status = status;
-        (0, task_1.writeTasks)(tasks);
+        (0, fileUtils_1.writeTasks)(tasks);
         console.log(`Marked task with id ${id} as ${status}`);
     }
     else {
@@ -56,7 +64,7 @@ function changeTaskStatus(id, status) {
     }
 }
 function listTasks(status) {
-    const tasks = (0, task_1.readTasks)();
+    const tasks = (0, fileUtils_1.readTasks)();
     if (status) {
         let filteredTasks = tasks.filter(task => task.status === status);
         console.log(`Listing tasks with status: ${status}`);
@@ -67,6 +75,3 @@ function listTasks(status) {
         tasks.forEach(task => console.log(`[${task.id}]  ${task.description} - ${task.status}`));
     }
 }
-module.exports = {
-    addTask, updateTask, deleteTask, changeTaskStatus, listTasks
-};
